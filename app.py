@@ -45,7 +45,7 @@ def close_db(error):
         g.sqlite_db.close()
 
 @app.route('/')
-def show_entries():
+def index():
     """Searches db for entries, then displays them."""
     db = get_db()
     cur = db.execute('select * from entries order by id desc')
@@ -55,7 +55,7 @@ def show_entries():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """User login/auth/session management"""
-    error=none
+    error=None
     if request.method == 'POST':
         if request.form['username'] != app.config['USERNAME']:
             error = 'Invalid username'
