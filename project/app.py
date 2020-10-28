@@ -76,8 +76,12 @@ def add_entry():
 
     db=get_db()
     db.execute(
-        'insert into '
+        'insert into entries (title, text) values (?, ?)',
+        [request.form['title'], request.form['text']]
     )
+    db.commit()
+    flash('New entry successfully posted!')
+    return redirect(url_for('index'))
 
 # root url
 @app.route('/')
