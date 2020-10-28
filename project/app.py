@@ -2,7 +2,7 @@ from flask import Flask, g, render_template, request, session, flash, redirect, 
 import sqlite3
 
 # Config
-DATABASE = "franker.db"
+DATABASE = "frankr.db"
 USERNAME = "admin"
 PASSWORD = "admin"
 SECRET_KEY = "change_me"
