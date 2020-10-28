@@ -39,7 +39,8 @@ def close_db(error):
 
 # root url
 @app.route('/')
-def hello_world():
+def index():
+    """Searches DB for entries, then displays them"""
     return 'Hello, World!'
 
 # make executable
