@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, session, flash, redirect, url_for, jsonify, abort
 from pathlib import Path
 from flask_sqlalchemy import SQLAlchemy
+from functools import wraps
 
 basedir = Path(__file__).resolve().parent
 
@@ -55,6 +56,18 @@ from project import models
 #         g.sqlite_db.close()
 #
 
+
+# bad auth func
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in'):
+            flash('Please log in.')
+            return jsonify({'status': 0, 'message': 'Please log in!'}), 401
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 # Log in
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -99,6 +112,7 @@ def add_entry():
 
 # Delete post
 @app.route('/delete/<int:post_id>', methods=['GET'])
+@login_required
 def delete_entry(post_id):
     """Delete post from db"""
     result = {'status': 0, 'message': 'Error'}
