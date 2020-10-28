@@ -1,9 +1,11 @@
 from pathlib import Path
+import json
 import os
 import pytest
 from project.app import app, init_db
 
 TEST_DB = "test.db"
+
 
 @pytest.fixture
 def client():
@@ -15,6 +17,7 @@ def client():
     yield app.test_client() # Run tests here
     init_db() # Teardown
 
+
 def login(client, username, password):
     """Login Helper Function"""
     return client.post(
@@ -23,14 +26,17 @@ def login(client, username, password):
         follow_redirects = True
     )
 
+
 def logout(client):
     """Logout helper function"""
     return client.get("/logout", follow_redirects=True)
+
 
 def test_index(client):
     response = client.get("/", content_type="html/text")
 
     assert response.status_code == 200
+
 
 def test_database(client):
     """Initial test to ensure database exists"""
@@ -38,10 +44,12 @@ def test_database(client):
     tester = Path("test.db").is_file()
     assert tester
 
+
 def test_empty_db(client):
     """Ensure db is blank"""
     rv = client.get("/")
     assert b"No entries yet. Add some!" in rv.data
+
 
 def test_login_logout(client):
     """Test login and logout using helper functinos."""
@@ -57,6 +65,7 @@ def test_login_logout(client):
     rv = login(client, app.config["USERNAME"], app.config["PASSWORD"] + "lol")
     assert b"Invalid password" in rv.data
 
+
 def test_messages(client):
     """Ensure user can post messages"""
     login(client, app.config["USERNAME"], app.config["PASSWORD"])
@@ -68,3 +77,11 @@ def test_messages(client):
     assert b"No entries here so far" not in rv.data
     assert b"&lt;Hello&gt;" in rv.data
     assert b"<strong>HTML</strong> allowed here" in rv.data
+
+
+def test_delete_message(client):
+    """Ensure messages are being deleted"""
+    rv = client.get('/delete/1')
+    data = json.loads(rv.data)
+
+    assert data['status'] == 1

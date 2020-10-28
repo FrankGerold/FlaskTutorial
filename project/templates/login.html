@@ -3,41 +3,42 @@
     <head>
         <title>Frankr | Login</title>
         <link
-            rel="stylesheet"
-            type="text/css"
-            href="{{ url_for('static', filename='style.css') }}"
-        />
+                rel="stylesheet"
+                href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+                integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+                crossorigin="anonymous">
     </head>
 
     <body>
-        <div class="page">
+        <div class="container">
             <h1>Frankr</h1>
 
-            <div class="metanav">
+         <div class="metanav">
                 {% if not session.logged_in %}
-                <a href="{{ url_for('login') }}">Log In</a>
+                <a class="btn btn-success" role="button" href="{{  url_for('login') }}">Log In</a>
                 {% else %}
-                <a href="{{ url_for('logout') }}">Log Out</a>
+                <a class="btn btn-warning" role="button" href="{{ url_for('logout') }}">Log Out</a>
                 {% endif %}
             </div>
 
             {% for message in get_flashed_messages() %}
-            <div class="flash">{{ message }}</div>
+            <div class="flash alert alert-success col-sm-4">{{ message }}</div>
             {% endfor %} {% block body %} {% endblock %}
 
             <h2>Log In</h2>
 
             {% if error %}
-            <p class="error"><strong>Error: </strong> {{ error }}</p>
+            <p class="alert alert-danger col-sm-4"><strong>Error: </strong> {{ error }}</p>
             {% endif %}
 
             <form action="{{ url_for('login') }}" method="post">
                 <dl>
                     <dt>Username:</dt>
-                    <dd><input type="text" name="username" /></dd>
+                    <dd><input type="text" name="username" class="form-control col-sm-4" /></dd>
                     <dt>Password:</dt>
-                    <dd><input type="password" name="password" /></dd>
-                    <dd><input type="submit" value="Log In" /></dd>
+                    <dd><input type="password" name="password" class="form-control col-sm-4" /></dd>
+                    <dd><input type="submit" class="btn btn-primary" value="Log In" /></dd>
+                    <span>Use "admin" for username and password</span>
                 </dl>
             </form>
         </div>

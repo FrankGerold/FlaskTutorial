@@ -1,4 +1,4 @@
-from flask import Flask, g, render_template, request, session, flash, redirect, url_for
+from flask import Flask, g, render_template, request, session, flash, redirect, url_for, jsonify, abort
 import sqlite3
 
 # Config
@@ -13,12 +13,14 @@ app = Flask(__name__)
 # load config
 app.config.from_object(__name__)
 
+
 # Connect to DB
 def connect_db():
     """Connects to the database"""
     rv = sqlite3.connect(app.config["DATABASE"])
     rv.row_factory = sqlite3.Row
     return rv
+
 
 # Create the DB
 def init_db():
@@ -28,11 +30,13 @@ def init_db():
             db.cursor().executescript(f.read())
         db.commit()
 
+
 # Open DB cxn
 def get_db():
     if not hasattr(g, "sqlite_db"):
         g.sqlite_db = connect_db()
     return g.sqlite_db
+
 
 # Close db cxn
 @app.teardown_appcontext
@@ -68,13 +72,14 @@ def logout():
     return redirect(url_for('index'))
 
 
+# add post
 @app.route('/add', methods=['POST'])
 def add_entry():
     """Add new post to db"""
     if not session.get('logged_in'):
         abort(401)
 
-    db=get_db()
+    db = get_db()
     db.execute(
         'insert into entries (title, text) values (?, ?)',
         [request.form['title'], request.form['text']]
@@ -82,6 +87,25 @@ def add_entry():
     db.commit()
     flash('New entry successfully posted!')
     return redirect(url_for('index'))
+
+
+# Delete post
+@app.route('/delete/<post_id>', methods=['GET'])
+def delete_entry(post_id):
+    """Delete post from db"""
+    result = {'status': 0, 'message': 'Error'}
+    try:
+        db = get_db()
+        db.execute('delete from entries where id=' + post_id)
+        db.commit()
+
+        result = {'status': 1, 'message': 'Post Deleted!'}
+
+    except Exception as e:
+        result = {'status': 0, 'message': repr(e)}
+
+    return jsonify(result)
+
 
 # root url
 @app.route('/')
