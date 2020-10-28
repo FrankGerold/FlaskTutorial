@@ -1,8 +1,7 @@
 from pathlib import Path
 import json
-import os
 import pytest
-from project.app import app, init_db
+from project.app import app, db
 
 TEST_DB = "test.db"
 
@@ -12,10 +11,11 @@ def client():
     BASE_DIR = Path(__file__).resolve().parent.parent
     app.config["TESTING"] = True
     app.config["DATABASE"] = BASE_DIR.joinpath(TEST_DB)
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{BASE_DIR.joinpath(TEST_DB)}"
 
-    init_db() # Set up db
-    yield app.test_client() # Run tests here
-    init_db() # Teardown
+    db.create_all()  # Set up db
+    yield app.test_client()  # Run tests here
+    db.drop_all()  # Teardown
 
 
 def login(client, username, password):
@@ -23,7 +23,7 @@ def login(client, username, password):
     return client.post(
         "/login",
         data=dict(username=username, password=password),
-        follow_redirects = True
+        follow_redirects=True
     )
 
 
@@ -38,9 +38,8 @@ def test_index(client):
     assert response.status_code == 200
 
 
-def test_database(client):
+def test_database():
     """Initial test to ensure database exists"""
-    init_db()
     tester = Path("test.db").is_file()
     assert tester
 
@@ -52,7 +51,7 @@ def test_empty_db(client):
 
 
 def test_login_logout(client):
-    """Test login and logout using helper functinos."""
+    """Test login and logout using helper functions."""
     rv = login(client, app.config["USERNAME"], app.config["PASSWORD"])
     assert b"You were logged in" in rv.data
 
