@@ -31,7 +31,6 @@ def test_index(client):
     response = client.get("/", content_type="html/text")
 
     assert response.status_code == 200
-    assert response.data == b"Hello, World!"
 
 def test_database(client):
     """Initial test to ensure database exists"""
